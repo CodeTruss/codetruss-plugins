@@ -45,10 +45,10 @@ marketplace.
 
 - Git
 - Node.js 20.9 or newer
-- CodeTruss CLI v0.2.30 or newer from <https://codetruss.com/cli>
+- CodeTruss CLI v0.2.35 or newer from <https://codetruss.com/cli>
 
 Skill instructions in this repository are verified against the shipped CLI
-v0.2.30. The skill can explain the official installer when the CLI is missing,
+v0.2.35. The skill can explain the official installer when the CLI is missing,
 but it must not install software without the developer's confirmation.
 
 ## What a receipt looks like
@@ -59,9 +59,9 @@ also touched a denied path and committed a live key:
 ```markdown
 # CodeTruss receipt — FAILED
 
-- **Session:** `20260807T032401919Z-42bd50`
+- **Session:** `20260807T051345990Z-4f2f16`
 - **Task:** Add a SESSION_TTL constant to src/auth.ts
-- **Starting commit:** `decff98665b27d53ec643546829342bbb1b4c878`
+- **Starting commit:** `14482ad37ea1f3ea5c9547071b58c3cdffb7c0b0`
 - **Policy SHA-256:** `d13f4367129bb7683c486d4d4e8e876bc1e9a7f541cd0e539945743b16d95a03`
 
 ## Verdict: FAILED
@@ -69,14 +69,15 @@ also touched a denied path and committed a live key:
 - 1 high/critical security or dependency finding(s) affect changed files
 - 1 file(s) changed in denied paths: infra/deploy.sh
 - 1 file(s) changed outside approved scope: .codetruss.yml
+- sensitive surfaces changed: .codetruss.yml (policy)
 
 ## Changed files (3)
 
 | Path | Change | Scope | Sensitive | Lines |
 |---|---|---|---|---:|
-| `.codetruss.yml` | added | unexpected | policy | +16/−0 |
+| `.codetruss.yml` | added | unexpected | policy | +5/−0 |
 | `infra/deploy.sh` | added | denied | — | +3/−0 |
-| `src/auth.ts` | modified | allowed | — | +2/−0 |
+| `src/auth.ts` | modified | allowed | — | +1/−0 |
 
 ## Introduced or worsened analyzer findings (1)
 
@@ -86,24 +87,59 @@ also touched a denied path and committed a live key:
 
 ## Analysis profile
 
-The 13 deterministic registry analyzers ran locally on this machine.
+Profile: `local-registry-v2`.
+
+The 13 deterministic registry analyzers ran locally on this machine, plus a local
+security pass: the shared SAST engine — the same rules and the same
+source-to-sink taint tracking as the hosted audit — over the JavaScript,
+TypeScript and TSX in this repository.
+
+### What the local security pass checked
+
+- **SQL injection (CWE-89).** Untrusted input tracked from request sources
+  through string building into query execution.
+- **Mass assignment (CWE-915).** A raw request body spread into a database
+  write, and write helpers whose payload type accepts arbitrary keys.
+- **Un-awaited database writes, swallowed errors, coercion-prone `==`
+  comparisons, and N+1 queries in loops** — the defect classes coding agents
+  most often introduce.
 
 ### What did not run
 
-- **Security static analysis (SAST).** No injection or taint analysis was
-  performed. SQL injection, command injection, code injection, path traversal,
-  SSRF, open redirect, XSS and insecure deserialization were never checked, so
-  this receipt says nothing either way about those classes.
+- **The rest of the security rule pack.** Command injection, code injection,
+  path traversal, SSRF, open redirect, XSS and insecure deserialization were
+  **not** checked here. Those rules run in a hosted scan; absence of a finding
+  in those classes means they were not analyzed, not that the code is clean.
+- **Non-JavaScript languages.** The local pass covers JavaScript, TypeScript and
+  TSX only. Python, Go, Java, C#, PHP, Ruby and Rust in this repository received
+  secret scanning and the other registry passes, but no security rule or taint
+  analysis.
+- **Hosted symbol graph.** No cross-file call or data-flow graph was built, so
+  architecture and dead-code conclusions cover only what the local passes can
+  see in isolation.
+- **Optional LLM review.** No model read this diff. It is opt-in via `--llm` and
+  is force-disabled under agent hooks, so a hook receipt is always deterministic
+  evidence only.
+- **Hosted Health scores.** Not calculated, reported as **N/A**. The scores are
+  defined over the graph and the complete SAST pass; a number derived from this
+  pass set would overstate what ran.
+
+Local security findings are reported for review and do not fail the verdict on
+their own.
 ```
 
 `codetruss verify latest` re-checks the signature over those bytes and prints
-`verified 20260807T032401919Z-42bd50 (FAILED)`.
+`verified 20260807T051345990Z-4f2f16 (FAILED)`.
 
 ## What runs where
 
 Local and deterministic, with no account and no network required:
 
 - the 13 registry analyzers listed in the receipt's analysis profile;
+- since CLI v0.2.35, a security pass running the shared SAST engine and its
+  source-to-sink taint tracking over the repository's JavaScript, TypeScript and
+  TSX: SQL injection, mass assignment, un-awaited database writes, swallowed
+  errors, coercion-prone `==`, and N+1 queries in loops;
 - scope classification of every changed file against the approved allow/deny
   boundary, including untracked and sensitive-surface detection;
 - secret detection on changed files;
@@ -113,14 +149,17 @@ Local and deterministic, with no account and no network required:
 
 Hosted, and only when the developer explicitly asks for it:
 
-- security static analysis and the cross-file symbol graph, which back the
+- the rest of the security rule pack — command injection, code injection, path
+  traversal, SSRF, open redirect, XSS, insecure deserialization — and every
+  non-JavaScript language;
+- the cross-file symbol graph, which together with the full rule pack backs the
   full-codebase audit and the Health scores;
 - receipt `sync` to a CodeTruss account.
 
-A local receipt never contains injection or taint analysis, and it says so in
-its own "What did not run" section. Optional provider-backed `--llm` review is
-force-disabled under agent hooks, so a hook receipt is always deterministic
-evidence only.
+A local receipt names its own remaining gaps in its "What did not run" section,
+and local security findings are `REVIEW_REQUIRED` at most — they never fail a
+verdict on their own. Optional provider-backed `--llm` review is force-disabled
+under agent hooks, so a hook receipt is always deterministic evidence only.
 
 Measured behaviour on public repositories is published at
 <https://codetruss.com/benchmark>. CLI downloads, checksums, and the SBOM are at

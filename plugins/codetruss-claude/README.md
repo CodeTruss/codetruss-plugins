@@ -19,9 +19,9 @@ Prerequisites:
 
 - Git
 - Node.js 20.9 or newer
-- CodeTruss CLI v0.2.30 or newer from <https://codetruss.com/cli>
+- CodeTruss CLI v0.2.35 or newer from <https://codetruss.com/cli>
 
-Skill instructions are verified against the shipped CLI v0.2.30.
+Skill instructions are verified against the shipped CLI v0.2.35.
 
 The plugin contains no analyzer, bundled hook, MCP server, background service,
 or upload path. It delegates hook installation to the tested CLI after developer
@@ -36,7 +36,7 @@ receipt sync require separate explicit developer actions.
 Troubleshooting:
 
 - Run `codetruss --version`; install or upgrade from the CLI page when it is
-  missing or older than v0.2.30.
+  missing or older than v0.2.35.
 - Run `codetruss setup` for the guided local policy, verification-fingerprint,
   and hook flow. Do not replace it with hand-edited setup steps.
 - Run `codetruss hooks status claude` and `codetruss hooks doctor claude`
