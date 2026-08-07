@@ -19,7 +19,7 @@ assert.match(canonicalSkill, /^---\nname: codetruss\ndescription: .{80,1024}\n--
 
 for (const required of [
   'obtain explicit consent before downloading or installing software',
-  'This skill targets v0.2.24 or newer.',
+  'This skill targets v0.2.35 or newer.',
   'use `codetruss setup` as the single guided setup path',
   '`codetruss verify-policy status` and require exit 0 with the same fingerprint',
   'An existing `.codetruss.yml` remains authoritative',
@@ -27,6 +27,10 @@ for (const required of [
   'Do not broaden `allow`, remove `deny`, add `--no-verify`',
   'For `codetruss run` and `codetruss review`, treat exit `0` as `PASS`',
   'post-generation integrity evidence',
+  'stay hosted-only',
+  'Read the receipt\'s own "What did not run" section instead',
+  'Local security findings are `REVIEW_REQUIRED` at most.',
+  'never as\n  evidence that the change is secure',
 ]) {
   assert.ok(canonicalSkill.includes(required), `missing trust-boundary rule: ${required}`)
 }
@@ -62,6 +66,11 @@ for (const manifest of [claudeManifest, codexManifest, rootManifest]) {
   assert.equal(manifest.skills, './skills/')
   assert.match(manifest.homepage, /^https:\/\/codetruss\.com\//)
 }
+assert.ok(!('hooks' in claudeManifest), 'plugin must delegate hooks to the tested CLI installer')
+assert.ok(!('mcpServers' in claudeManifest), 'local-first wrapper must not add an MCP server')
+for (const manifest of [claudeManifest, codexManifest, rootManifest]) {
+  assert.doesNotMatch(manifest.description, /proof layer/i)
+}
 for (const manifest of [codexManifest, rootManifest]) {
   assert.equal(manifest.interface.privacyPolicyURL, 'https://codetruss.com/privacy')
   assert.equal(manifest.interface.termsOfServiceURL, 'https://codetruss.com/terms')
@@ -69,7 +78,7 @@ for (const manifest of [codexManifest, rootManifest]) {
   assert.ok(!('hooks' in manifest), 'plugin must delegate hooks to the tested CLI installer')
   assert.equal(
     manifest.interface.shortDescription,
-    'Local acceptance gate for coding-agent changes',
+    'First-pass verification gate for AI-written code',
   )
 }
 for (const field of [
@@ -164,20 +173,42 @@ assert.deepEqual(codexMarketplace.plugins[0].policy, {
 })
 
 const readme = await read('README.md')
-assert.match(readme, /CodeTruss CLI v0\.2\.24 or newer/)
+assert.match(readme, /CodeTruss CLI v0\.2\.35 or newer/)
 assert.match(readme, /--skill codetruss --agent claude-code codex -y/)
 assert.match(readme, /codetruss-plugins\/tree\/v0\.1\.5/)
 assert.doesNotMatch(readme, /official listing remains pending review/)
 assert.match(readme, /not currently listed in\s+Anthropic's reviewed community catalog/)
 assert.match(readme, /not currently listed in\s+OpenAI's public Plugin Directory/)
+assert.match(
+  readme,
+  /CodeTruss is the deterministic first-pass verification gate for\s+AI-written code\./,
+)
+assert.match(readme, /\/plugin marketplace add DeliriumPulse\/codetruss-plugins/)
+assert.match(readme, /\/plugin install codetruss@codetruss/)
+assert.match(readme, /verified against the shipped CLI\s+v0\.2\.35/)
+assert.match(readme, /The 13 deterministic registry analyzers ran locally on this machine, plus a local\s+security pass/)
+assert.match(readme, /https:\/\/codetruss\.com\/benchmark/)
+assert.match(readme, /https:\/\/codetruss\.com\/cli/)
 
 for (const path of [
   'plugins/codetruss/README.md',
   'plugins/codetruss-claude/README.md',
 ]) {
   const pluginReadme = await read(path)
-  assert.match(pluginReadme, /CodeTruss CLI v0\.2\.24 or newer/)
+  assert.match(pluginReadme, /CodeTruss CLI v0\.2\.35 or newer/)
   assert.match(pluginReadme, /Run `codetruss setup` for the guided local policy/)
+}
+
+const claudePluginReadme = await read('plugins/codetruss-claude/README.md')
+assert.match(claudePluginReadme, /\/plugin install codetruss@codetruss/)
+assert.match(claudePluginReadme, /verified against the shipped CLI v0\.2\.35/)
+
+const submission = await read('PLUGIN-SUBMISSION.md')
+assert.match(submission, /platform\.claude\.com\/plugins\/submit/)
+assert.match(submission, /DeliriumPulse\/codetruss-plugins/)
+
+for (const prose of [readme, claudePluginReadme, submission]) {
+  assert.doesNotMatch(prose, /proof layer/i)
 }
 
 process.stdout.write('CodeTruss Claude, Codex, and Agent Skills packages validated.\n')
