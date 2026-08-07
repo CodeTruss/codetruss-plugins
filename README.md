@@ -100,6 +100,9 @@ TypeScript and TSX in this repository.
   through string building into query execution.
 - **Mass assignment (CWE-915).** A raw request body spread into a database
   write, and write helpers whose payload type accepts arbitrary keys.
+- **Un-awaited database writes, swallowed errors, coercion-prone `==`
+  comparisons, and N+1 queries in loops** — the defect classes coding agents
+  most often introduce.
 
 ### What did not run
 
@@ -108,7 +111,21 @@ TypeScript and TSX in this repository.
   **not** checked here. Those rules run in a hosted scan; absence of a finding
   in those classes means they were not analyzed, not that the code is clean.
 - **Non-JavaScript languages.** The local pass covers JavaScript, TypeScript and
-  TSX only.
+  TSX only. Python, Go, Java, C#, PHP, Ruby and Rust in this repository received
+  secret scanning and the other registry passes, but no security rule or taint
+  analysis.
+- **Hosted symbol graph.** No cross-file call or data-flow graph was built, so
+  architecture and dead-code conclusions cover only what the local passes can
+  see in isolation.
+- **Optional LLM review.** No model read this diff. It is opt-in via `--llm` and
+  is force-disabled under agent hooks, so a hook receipt is always deterministic
+  evidence only.
+- **Hosted Health scores.** Not calculated, reported as **N/A**. The scores are
+  defined over the graph and the complete SAST pass; a number derived from this
+  pass set would overstate what ran.
+
+Local security findings are reported for review and do not fail the verdict on
+their own.
 ```
 
 `codetruss verify latest` re-checks the signature over those bytes and prints
