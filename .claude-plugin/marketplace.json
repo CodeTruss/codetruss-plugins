@@ -1,10 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "codetruss",
-  "description": "Verify the acceptance contract for coding-agent changes locally",
-  "version": "0.1.5",
+  "description": "The deterministic first-pass verification gate for AI-written code",
+  "version": "0.1.6",
   "metadata": {
-    "description": "Verify the acceptance contract for coding-agent changes locally"
+    "description": "The deterministic first-pass verification gate for AI-written code"
   },
   "owner": {
     "name": "CodeTruss",
@@ -14,7 +14,7 @@
     {
       "name": "codetruss",
       "source": "./plugins/codetruss-claude",
-      "description": "Enforce approved scope and checks with the separately installed free CodeTruss CLI",
+      "description": "Bind each agent task to an approved file boundary, run the repository's own checks, and read the signed receipt. Requires the separately installed free CodeTruss CLI.",
       "category": "development",
       "tags": ["acceptance-gate", "scope-drift", "verification", "local-first", "coding-agents"]
     }
