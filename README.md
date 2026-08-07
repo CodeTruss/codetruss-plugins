@@ -45,7 +45,7 @@ marketplace.
 
 - Git
 - Node.js 20.9 or newer
-- CodeTruss CLI v0.2.24 or newer from <https://codetruss.com/cli>
+- CodeTruss CLI v0.2.30 or newer from <https://codetruss.com/cli>
 
 Skill instructions in this repository are verified against the shipped CLI
 v0.2.30. The skill can explain the official installer when the CLI is missing,
