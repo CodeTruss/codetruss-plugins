@@ -7,7 +7,7 @@ Prerequisites:
 
 - Git
 - Node.js 20.9 or newer
-- CodeTruss CLI v0.2.24 or newer from <https://codetruss.com/cli>
+- CodeTruss CLI v0.2.30 or newer from <https://codetruss.com/cli>
 
 The plugin contains no analyzer, MCP server, background service, or upload path.
 Deterministic checks stay local. Provider-backed review, authentication, and
@@ -16,7 +16,7 @@ receipt sync require separate explicit developer actions.
 Troubleshooting:
 
 - Run `codetruss --version`; install or upgrade from the CLI page when it is
-  missing or older than v0.2.24.
+  missing or older than v0.2.30.
 - Run `codetruss setup` for the guided local policy, verification-fingerprint,
   and hook flow. Do not replace it with hand-edited setup steps.
 - Run `codetruss hooks status codex` and `codetruss hooks doctor codex` before

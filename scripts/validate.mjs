@@ -19,7 +19,7 @@ assert.match(canonicalSkill, /^---\nname: codetruss\ndescription: .{80,1024}\n--
 
 for (const required of [
   'obtain explicit consent before downloading or installing software',
-  'This skill targets v0.2.24 or newer.',
+  'This skill targets v0.2.30 or newer.',
   'use `codetruss setup` as the single guided setup path',
   '`codetruss verify-policy status` and require exit 0 with the same fingerprint',
   'An existing `.codetruss.yml` remains authoritative',
@@ -27,6 +27,8 @@ for (const required of [
   'Do not broaden `allow`, remove `deny`, add `--no-verify`',
   'For `codetruss run` and `codetruss review`, treat exit `0` as `PASS`',
   'post-generation integrity evidence',
+  'a local run never performs injection or taint analysis',
+  'never as\n  evidence that the change is secure',
 ]) {
   assert.ok(canonicalSkill.includes(required), `missing trust-boundary rule: ${required}`)
 }
@@ -74,7 +76,7 @@ for (const manifest of [codexManifest, rootManifest]) {
   assert.ok(!('hooks' in manifest), 'plugin must delegate hooks to the tested CLI installer')
   assert.equal(
     manifest.interface.shortDescription,
-    'Local acceptance gate for coding-agent changes',
+    'First-pass verification gate for AI-written code',
   )
 }
 for (const field of [
@@ -169,7 +171,7 @@ assert.deepEqual(codexMarketplace.plugins[0].policy, {
 })
 
 const readme = await read('README.md')
-assert.match(readme, /CodeTruss CLI v0\.2\.24 or newer/)
+assert.match(readme, /CodeTruss CLI v0\.2\.30 or newer/)
 assert.match(readme, /--skill codetruss --agent claude-code codex -y/)
 assert.match(readme, /codetruss-plugins\/tree\/v0\.1\.5/)
 assert.doesNotMatch(readme, /official listing remains pending review/)
@@ -191,7 +193,7 @@ for (const path of [
   'plugins/codetruss-claude/README.md',
 ]) {
   const pluginReadme = await read(path)
-  assert.match(pluginReadme, /CodeTruss CLI v0\.2\.24 or newer/)
+  assert.match(pluginReadme, /CodeTruss CLI v0\.2\.30 or newer/)
   assert.match(pluginReadme, /Run `codetruss setup` for the guided local policy/)
 }
 

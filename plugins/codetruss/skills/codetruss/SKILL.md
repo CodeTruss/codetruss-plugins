@@ -13,7 +13,7 @@ agent.
 
 - Work inside the developer's Git repository and inspect existing policy before
   proposing changes.
-- Run `codetruss --version` first. This skill targets v0.2.24 or newer. If the
+- Run `codetruss --version` first. This skill targets v0.2.30 or newer. If the
   CLI is missing or older, explain the prerequisite, then
   obtain explicit consent before downloading or installing software, including an upgrade.
 - Offer only the official install paths from `https://codetruss.com/cli`. Let
@@ -29,6 +29,10 @@ agent.
   as `REVIEW_REQUIRED`, exit `2` as `FAILED`, and exit `3` as a usage or
   environment failure. Exits 1 and 2 still produce receipts; other commands
   may use nonzero exits differently, so read their output.
+- A receipt also names what did not run. SAST and the hosted symbol graph are
+  hosted-only, so a local run never performs injection or taint analysis.
+  Report a `PASS` as the deterministic passes finding nothing new, never as
+  evidence that the change is secure.
 - Describe a valid signature as post-generation integrity evidence. Do not call
   it trusted execution, proof of authorship, or automatic compliance evidence.
 
